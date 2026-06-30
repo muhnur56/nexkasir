@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/src/lib/supabase";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 const slides = [
     {
@@ -20,8 +23,8 @@ const slides = [
             "Dari katalog online hingga kasir, semua bisa dilakukan dengan cepat dan efisien.",
     },
     {
-        color: "bg-orange-500",
-        shape: "bg-orange-400",
+        color: "bg-purple-500",
+        shape: "bg-purple-400",
         image: "/slide3.png",
         title: "Digitalisasi Usahamu untuk Pembukuan yang Lebih Baik",
         description:
@@ -29,8 +32,34 @@ const slides = [
     },
 ];
 
+
 export default function LoginPage() {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        setLoading(true);
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        setLoading(false);
+
+        if (error) {
+            alert(error.message);
+            return;
+        }
+
+        router.push("/dashboard");
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -39,6 +68,21 @@ export default function LoginPage() {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (session) {
+                router.push("/dashboard");
+            }
+        };
+
+        checkUser();
+    }, [router]);
+
     return (
         <main className="min-h-screen flex">
             {/* Left Side */}
@@ -80,8 +124,8 @@ export default function LoginPage() {
                                 key={index}
                                 onClick={() => setCurrentSlide(index)}
                                 className={`h-3 rounded-full transition-all duration-300 ${currentSlide === index
-                                        ? "w-8 bg-white"
-                                        : "w-3 bg-white/40"
+                                    ? "w-8 bg-white"
+                                    : "w-3 bg-white/40"
                                     }`}
                             />
                         ))}
@@ -107,7 +151,7 @@ export default function LoginPage() {
                     </div>
 
                     {/* Form */}
-                    <form className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-4">
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,20 +161,37 @@ export default function LoginPage() {
                             <input
                                 type="email"
                                 placeholder="contoh@email.com"
-                                className="w-full border-b border-gray-500 bg-transparent py-2 outline-none focus:border-violet-600 placeholder:text-gray-300"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full border-b border-gray-500 bg-transparent py-2 text-gray-900 outline-none focus:border-violet-600 placeholder:text-gray-300"
                             />
                         </div>
-
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Password
                             </label>
 
-                            <input
-                                type="password"
-                                placeholder="••••••••"
-                                className="w-full border-b border-gray-500 bg-transparent py-2 outline-none focus:border-violet-600 placeholder:text-gray-300"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full border-b border-gray-500 bg-transparent py-2 pr-10 text-gray-900 outline-none focus:border-violet-600 placeholder:text-gray-300"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-violet-600 transition"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={20} />
+                                    ) : (
+                                        <Eye size={20} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex justify-between items-center text-sm">
@@ -149,9 +210,10 @@ export default function LoginPage() {
 
                         <button
                             type="submit"
-                            className="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 rounded-xl transition"
+                            disabled={loading}
+                            className="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition"
                         >
-                            Masuk
+                            {loading ? "Masuk..." : "Masuk"}
                         </button>
                     </form>
 
@@ -187,7 +249,7 @@ export default function LoginPage() {
                     <p className="text-center text-gray-600 text-sm mt-8">
                         Belum punya akun?{" "}
                         <a
-                            href="/register"
+                            href="/auth/register"
                             className="font-semibold text-violet-600 hover:text-violet-700"
                         >
                             Daftar sekarang

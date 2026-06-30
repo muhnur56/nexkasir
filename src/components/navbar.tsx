@@ -47,14 +47,14 @@ export default function Navbar() {
 
                         <div className="hidden items-center gap-3 md:flex">
                             <Link
-                                href="/login"
+                                href="/auth/login"
                                 className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100"
                             >
                                 Masuk
                             </Link>
 
                             <Link
-                                href="/register"
+                                href="/auth/register"
                                 className="rounded-lg bg-violet-700 px-4 py-2 text-white hover:bg-violet-800"
                             >
                                 Daftar
@@ -90,14 +90,14 @@ export default function Navbar() {
 
                             <div className="mt-4 flex flex-col gap-3 px-2">
                                 <Link
-                                    href="/login"
+                                    href="/auth/login"
                                     className="rounded-lg border border-gray-300 px-4 py-2 text-center text-gray-700 transition hover:bg-gray-100"
                                 >
                                     Masuk
                                 </Link>
 
                                 <Link
-                                    href="/register"
+                                    href="/auth/register"
                                     className="rounded-lg bg-violet-700 px-4 py-2 text-center text-white transition hover:bg-violet-800"
                                 >
                                     Daftar
